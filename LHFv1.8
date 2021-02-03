@@ -1,0 +1,478 @@
+#!/bin/bash
+#### Description: Runs Low Hanging Fruit Scan for an Internal Penetration Test 
+#### All Files will be saved in Clients Directory
+#### Written by: Mark Eubanks - mark33180@gmail.com on 03-2018
+
+
+infosetup(){
+clear
+scriptname="Delitor Pen Test Tool v1.8"
+echo $scriptname
+echo
+foldercheck
+echo
+echo
+echo
+echo What is the client\s name?
+read varname
+clear
+echo $scriptname
+echo
+echo
+echo
+echo
+mkdir "/root/Desktop/Projects/$varname/"
+projectdir="/root/Desktop/Projects/$varname"
+# Reset
+Color_Off='\033[0m'       # Text Reset
+
+# Regular Colors
+Black='\033[0;30m'        # Black
+Red='\033[0;31m'          # Red
+Green='\033[0;32m'        # Green
+Yellow='\033[0;33m'       # Yellow
+Blue='\033[0;34m'         # Blue
+Purple='\033[0;35m'       # Purple
+Cyan='\033[0;36m'         # Cyan
+White='\033[0;37m'        # White
+clear
+pripsone
+}
+# project folder check
+foldercheck(){
+if [ ! -d "/root/Desktop/Projects" ]; then
+mkdir /root/Desktop/Projects
+fi
+}
+
+# prips
+pripsone(){
+echo $scriptname
+echo
+echo
+echo
+echo
+echo
+echo What is the IP address range you would like to scan? 
+tput setaf 1; echo ex:192.168.0.0 192.168.0.254 or 192.168.0.0/24 ***even if single IP address!; echo You will have the opportunity to add more ranges next.; echo "If it is easier to copy and paste the IP addresses, enter whatever you would like and get to the main menu. The ip.txt file will be in the Projects>ClientName folder."
+tput setaf 7
+read iprange
+prips $iprange > $projectdir/scope.txt
+clear
+pripsmenu
+}
+
+# prips menu
+pripsmenu(){
+	show_pripsmenus
+	read_pripsoptions
+}
+
+# function to display menus
+show_pripsmenus() {
+	clear
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~"	
+	echo " Would you like to add another IP range?"
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo "1. Yes"
+	echo "2. No"
+
+}
+# read input from the keyboard and take a action
+# invoke the one() when the user select 1 from the menu option.
+# invoke the two() when the user select 2 from the menu option.
+# Exit when user the user select 3 form the menu option.
+read_pripsoptions(){
+	local choice
+	read -p "Enter choice [ 1 - 2] " choice
+	case $choice in
+		1) pripstwo ;;
+		*) echo -e "${RED}Error...${STD}" && sleep 2
+	esac
+}
+
+# prips
+pripstwo(){
+clear
+echo $scriptname
+echo
+echo
+echo
+echo
+echo
+echo What is the IP address range you would like to scan? 
+tput setaf 1; echo ex:192.168.0.0 192.168.0.254 ***even if single IP address!; echo You will have the opportunity to add more ranges next.; echo "If it is easier to copy and paste the IP addresses, enter whatever you would like and get to the main menu. The ip.txt file will be in the Projects>ClientName folder."
+tput setaf 7
+read iprange
+prips $iprange >> $projectdir/scope.txt
+clear
+pripsmenu
+}
+
+infosetup
+
+# A menu driven shell script sample template 
+## ----------------------------------
+# Step #1: Define variables
+# ----------------------------------
+EDITOR=vim
+PASSWD=/etc/passwd
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+ 
+# ----------------------------------
+# Step #2: User defined function
+# ----------------------------------
+pause(){
+  read -p "Press [Enter] key to continue..." fackEnterKey
+}
+
+# project folder check
+foldercheck(){
+if [ ! -d "/root/Desktop/Projects" ]; then
+mkdir /root/Desktop/Projects
+fi
+}
+
+echo -e "\e[1;31m ________     _______________                       \e[0m"
+echo -e "\e[1;31m ___  __ \_______  /__(_)_  /______________         \e[0m"
+echo -e "\e[1;31m __  / / /  _ \_  /__  /_  __/  __ \_  ___/         \e[0m"
+echo -e "\e[1;31m _  /_/ //  __/  / _  / / /_ / /_/ /  /             \e[0m"
+echo -e "\e[1;31m /_____/ \___//_/  /_/  \__/ \____//_/              \e[0m"
+echo -e "\e[1;31m                                                    \e[0m"
+echo -e "\e[1;31m ________                  ________           _____ \e[0m"
+echo -e "\e[1;31m ___  __ \___________      ___  __/_____________  /_\e[0m"
+echo -e "\e[1;31m __  /_/ /  _ \_  __ \     __  /  _  _ \_  ___/  __/\e[0m"
+echo -e "\e[1;31m _  ____//  __/  / / /     _  /   /  __/(__  )/ /_  \e[0m"
+echo -e "\e[1;31m /_/     \___//_/ /_/      /_/    \___//____/ \__/  \e[0m"
+echo -e "\e[1;31m                                                    \e[0m"
+echo -e "\e[1;31m ________           ______                          \e[0m"
+echo -e "\e[1;31m ___  __/______________  /                          \e[0m"
+echo -e "\e[1;31m __  /  _  __ \  __ \_  /                           \e[0m"
+echo -e "\e[1;31m _  /   / /_/ / /_/ /  /                            \e[0m"
+echo -e "\e[1;31m /_/    \____/\____//_/                             \e[0m"
+echo
+echo
+
+
+
+echo "Begining Scans"
+
+echo -e "Reading Scope."
+	nmap -sP -PE -iL $projectdir/scope.txt -oG - | awk '/Up/{print $2}' > $projectdir/hosts
+echo
+echo -e "Translating full Scope to Live Host"
+echo
+echo
+echo -e "\e[1;31mTotal Scan 2% complete.\e[0m"
+echo
+	nmap -Pn -iL $projectdir/hosts -p8080 -oG - | awk '/open/{print$2}' > $projectdir/http8080;
+echo
+echo "Completed http8080"
+echo
+echo -e "\e[1;31mTotal Scan 4% complete.\e[0m"
+echo
+	nmap -Pn -iL $projectdir/hosts -p80 -oG - | awk '/open/{print$2}' > $projectdir/http80;
+echo
+echo "Completed http80"
+echo
+echo -e "\e[1;31mTotal Scan 6% complete.\e[0m"
+echo
+	nmap -Pn -iL $projectdir/hosts -p8443 -oG - | awk '/open/{print$2}' > $projectdir/https8443;
+echo
+echo "Completed https8443"
+echo
+echo -e "\e[1;31mTotal Scan 8% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p443 -oG - | awk '/open/{print$2}' > $projectdir/https443;
+echo
+echo "Completed https443"
+echo
+echo -e "\e[1;31mTotal Scan 11% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p1433 -oG - | awk '/open/{print$2}' > $projectdir/mssql1433;
+echo
+echo "Completed mssql1433"
+echo
+echo -e "\e[0;32mTest mssql443 using Metasploit Module auxiliary/scanner/mssql/mssql_login.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 13% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p3306 -oG - | awk '/open/{print$2}' > $projectdir/mysql3306;
+echo
+echo "Completed mysql3306"
+echo
+echo -e "\e[0;32mTest mysql3306 using Metasploit Module auxiliary/scanner/mssql/mysql_login.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 15% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p21 -oG - | awk '/open/{print$2}' > $projectdir/ftp21;
+echo
+echo "Completed ftp21"
+echo
+echo -e "\e[0;32mTest ftp21 using Metasploit Module auxiliary/scanner/ftp/anonymous.\e[0m"
+echo
+echo -e "\e[0;32mTest ftp21 using Metasploit Module auxiliary/scanner/ftp/ftp_login.\e[0m"
+echo
+echo -e "\e[0;32mTest ftp21 using Metasploit Module auxiliary/scanner/ftp/ftp_version.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 17% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p23 -oG - | awk '/open/{print$2}' > $projectdir/telnet23;
+echo
+echo "Completed telnet23"
+echo
+echo -e "\e[0;32mTest telnet23 using Metasploit Module auxiliary/scanner/telnet/telnet_version .\e[0m"
+echo -e "\e[0;32mTest telnet23 using Metasploit Module auxiliary/scanner/telnet/telnet_login .\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 19% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p22 -oG - | awk '/open/{print$2}' > $projectdir/ssh22;
+echo
+echo "Completed ssh22"
+echo
+echo -e "\e[0;32mTest ssh22 using Metasploit Module auxiliary/scanner/ssh/ssh_enumusers.\e[0m"
+echo -e "\e[0;32mTest ssh22 using Metasploit Module auxiliary/scanner/ssh/ssh_version.\e[0m"
+echo -e "\e[0;32mTest ssh22 using Metasploit Module auxiliary/scanner/ssh/ssh_login.\e[0m"
+echo -e "\e[0;32mTest ssh22 using Metasploit Module auxiliary/scanner/ssh/ssh_login_pubkey.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 22% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p445 -oG - | awk '/open/{print$2}' > $projectdir/smb445;
+echo
+echo "Completed smb445"
+echo
+echo -e "\e[0;32mTest smb445 using Metasploit Module auxiliary/scanner/smb/smb_enumshares.\e[0m"
+echo -e "\e[0;32mTest smb445 using Metasploit Module auxiliary/scanner/smb/smb_enumusers.\e[0m"
+echo -e "\e[0;32mTest smb445 using Metasploit Module auxiliary/scanner/smb/smb_login.\e[0m"
+echo -e "\e[0;32mTest smb445 using Metasploit Module auxiliary/scanner/smb/smb_ms17_010.\e[0m"
+echo
+echo
+echo terminator -T "Metasploit Testing" -e "msfconsole" &
+echo
+echo
+echo -e "\e[1;31mTotal Scan 24% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p160 -oG - | awk '/open/{print$2}' > $projectdir/snmp160;
+echo
+echo "Completed snmp160"
+echo
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enum.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumshares.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumusers.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_login.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 26% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -sU -p161 -oG - | awk '/open/{print$2}' > $projectdir/snmp161;
+echo
+echo "Completed snmp161"
+echo
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enum.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumshares.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumusers.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_login.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 28% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -sU -p162 -oG - | awk '/open/{print$2}' > $projectdir/snmp162;
+echo
+echo "Completed snmp162"
+echo
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enum.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumshares.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_enumusers.\e[0m"
+echo -e "\e[0;32mTest snmp160 using Metasploit Module auxiliary/scanner/snmp/snmp_login.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 30% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p1521 -oG - | awk '/open/{print$2}' > $projectdir/oracle1521;
+echo
+echo "Complted oracle1521"
+echo
+echo -e "\e[0;32mTest oracle1521 using Metasploit Module auxiliary/scanner/oracle/sid_enum .\e[0m"
+echo -e "\e[0;32mTest oracle1521 using Metasploit Module auxiliary/scanner/oracle/tnslsnr_version.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 33% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p5432 -oG - | awk '/open/{print$2}' > $projectdir/postgres5432;
+echo
+echo "Completed postgres5432"
+echo
+echo -e "\e[0;32mTest postgres5432 using Metasploit Module auxiliary/admin/postgres/postgres_readfile .\e[0m"
+echo -e "\e[0;32mTest postgres5432 using Metasploit Module auxiliary/admin/postgres/postgres_sql.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 35% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p389 -oG - | awk '/open/{print$2}' > $projectdir/dc389;
+echo
+echo "Completed dc389"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 37% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p5800 -oG - | awk '/open/{print$2}' > $projectdir/vnc5800;
+echo
+echo "Completed vnc5800"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 39% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p5900 -oG - | awk '/open/{print$2}' > $projectdir/vnc5900;
+echo
+echo "Completed vnc5900"
+echo
+echo -e "\e[0;32mTest vnc5900 using Metasploit Module auxiliary/scanner/vnc/vnc_none_auth.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 42% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p5901-5999 -oG - | awk '/open/{print$2}' > $projectdir/vnc5901;
+echo
+echo "Completed vnc5901"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 44% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p3389 -oG - | awk '/open/{print$2}' > $projectdir/msserver3389;
+echo
+echo "Completed msserver3389"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 45% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p137 -oG - | awk '/open/{print$2}' > $projectdir/netbios137;
+echo
+echo "Completed netbios137"
+echo
+echo -e "\e[0;32mTest netbios139 using Metasploit Module auxiliary/scanner/netbios/nbname.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 48% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p135 -oG - | awk '/open/{print$2}' > $projectdir/rpc135;
+echo
+echo "Completed rpc135"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 50% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p139 -oG - | awk '/open/{print$2}' > $projectdir/netbios139;
+echo
+echo "Completed netbios139"
+echo
+echo -e "\e[0;32mTest netbios139 using Metasploit Module auxiliary/scanner/netbios/nbname.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 52% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p5060 -oG - | awk '/open/{print$2}' > $projectdir/sip5060;
+echo
+echo "Completed sip5060"
+echo
+echo -e "\e[0;32mTest sip5060 using Metasploit Module auxiliary/scanner/sip/enumerator.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 54% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p9100 -oG - | awk '/open/{print$2}' > $projectdir/printers9100;
+echo
+echo "Completed printers9100"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module auxiliary/scanner/snmp/snmp_enum_hp_laserjet.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 56% Complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -sU -p623 -oG - | awk '/open/{print$2}' > $projectdir/ipmi623;
+echo
+echo "Completed ipmi623"
+echo
+echo -e "\e[0;32mTest ipmi623 using Metasploit Module auxiliary/scanner/ipmi/ipmi_version.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 58% Complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -p53 -oG - | awk '/open/{print$2}' > $projectdir/dns53;
+echo
+echo "Completed dns53"
+echo
+echo -e "\e[0;32mTest dns53 using Metasploit Module auxiliary/gather/enum_dns.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 60% complete.\e[0m"
+	nmap -Pn -iL $projectdir/hosts -sU -p520 -oG - | awk '/open/{print$2}' > $projectdir/rip520;
+echo
+echo "Completed rip520"
+echo
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo -e "\e[0;32mTest <filename> using Metasploit Module <module>.\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 61% complete.\e[0m"
+echo
+echo "Combining HTTP host to one file for EyeWitness"
+	nmap -Pn -iL $projectdir/hosts -p 80,443,8080,8443 -oG - | grep open > $projectdir/http-hosts.txt
+echo
+echo -e "\e[1;31mTotal Scan 63% complete.\e[0m"
+echo
+	awk '/80\/open/{print "http://" $2 "/"}' < $projectdir/http-hosts.txt >> $projectdir/http-urls.txt
+echo -e "\e[1;31mTotal Scan 65% complete.\e[0m"
+	awk '/443\/open/{print "https://" $2 "/"}' < $projectdir/http-hosts.txt >> $projectdir/http-urls.txt
+echo -e "\e[1;31mTotal Scan 67% complete.\e[0m"
+	awk '/8080\/open/{print "http://" $2 ":8080/"}' < $projectdir/http-hosts.txt >> $projectdir/http-urls.txt
+echo -e "\e[1;31mTotal Scan 69% complete.\e[0m"
+	awk '/8443\/open/{print "https://" $2 ":8443/"}' < $projectdir/http-hosts.txt >> $projectdir/http-urls.txt
+echo -e "\e[1;31mTotal Scan 71% complete.\e[0m"
+echo
+echo -e "\e[1;31mWeb Server Discovery Complete.\e[0m"
+echo
+echo -e "\e[0;32mTest Webserver discovery using EyeWitness command ./EyeWitness.py -f $projectdir/http-urls.txt --web --prepend-http --timeout 15 -d $projectdir/EyeWitness/Results.\e[0m"
+echo
+echo -e "\e[1;31mStarting SMB Vulnerability Scans.\e[0m"
+#	nmap -Pn -iL $projectdir/hosts -p445 -oG - | awk '/open/{print$2}' > $projectdir/SMB_Testing
+echo
+echo -e "\e[1;31mTotal Scan 73% complete.\e[0m"
+echo
+#	nmap -Pn -iL $projectdir/hosts -p139 -oG - | awk '/open/{print$2}' >> $projectdir/SMB_Testing
+echo
+echo -e "\e[1;31mTotal Scan 76% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning nmap smb-OS-discovery scripts...\e[0m"
+echo
+#	nmap --script smb-os-discovery.nse -p 139,445 --script-args=unsafe=1 -iL $projectdir/SMB_Testing > $projectdir/OS_Discovery.txt
+echo
+echo -e "\e[1;31mTotal Scan 78% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning smb enumeration scripts...\e[0m"
+echo
+#	nmap -p 139,445 -v --script "smb-enum*" --script-args=unsafe=1 -iL $projectdir/SMB_Testing > $projectdir/SMB_Enum.txt
+echo
+echo -e "\e[1;31mTotal Scan 80% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning all nmap smb-vuln scripts...\e[0m"
+echo
+#	nmap -p 139,445 -v --script "smb-vuln*" --script-args=unsafe=1 -iL $projectdir/SMB_Testing >> $projectdir/SMB_Vuln.txt
+echo
+echo -e "\e[1;31mTotal Scan 82% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning smb enumeration scripts...\e[0m"
+echo
+echo
+echo -e "\e[1;31mTotal Scan 84% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning all nmap smb-vuln scripts...\e[0m"
+echo
+echo -e "\e[1;31mTotal Scan 87% complete.\e[0m"
+echo
+echo -e "\e[1;31mRunning additional Vulnerability scripts\e[0m"
+echo
+#	nmap -v -p 21 --script=ftp-anon.nse --script-args=unsafe=1 -iL $projectdir/ftp21 > $projectdir/Misc_Vuln.txt
+echo
+echo -e "\e[1;31mTotal Scan 89% complete.\e[0m"
+echo
+#	nmap -v -p 80 --script=http-vuln-cve2010-2861 --script-args=unsafe=1 -iL $projectdir/http80 >> $projectdir/Misc_Vuln.txt
+#echo
+#echo -e "\e[1;31mTotal Scan 93% complete.\e[0m"
+#echo
+#	nmap -v -p 80 --script=http-vuln-cve2011-3192 --script-args=unsafe=1 -iL $projectdir/http80 >> $projectdir/Misc_Vuln.txt
+#echo
+#echo -e "\e[1;31mTotal Scan 95% complete.\e[0m"
+#echo
+#	nmap -v -p 139, 445 --script=smb-security-mode --script-args=unsafe=1 -iL $projectdir/SMB_Testing >> $projectdir/SMB_Vuln.txt
+#echo
+#
+	cd $projectdir
+	mkdir  nmap
+	nmap -sC -sV -oA $projectdir/nmap/$varname -iL scope.txt
+#	
+
+echo -e "\e[1;31mTotal Scan 100% Complete.\e[0m"
+
+
+
